@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip list *)",
+      "Bash(findstr -i chroma)",
+      "Bash(python -c \"import chromadb; print\\('chromadb ok'\\)\")"
+    ]
+  }
+}
