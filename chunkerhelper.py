@@ -27,7 +27,7 @@ def chunk_by_thread(messages:list[dict]) -> list[list[dict[str, Any]]]:
 
 
 
-def build_chain (msg_lookup:dict[str, Any], current_chunk:list[dict[str, Any]], message:dict[str]) -> None:
+def build_chain (msg_lookup:dict[str, Any], current_chunk:list[dict[str, Any]], message:str) -> None:
     new_message = msg_lookup.pop(message)  #pop message from msg_lookup as it's now visited 
     current_chunk.append(new_message)
     if (new_message['reply_to'] in msg_lookup):   #recursive build_chain call if the current message has a parent message that exists in our message list
@@ -68,13 +68,13 @@ def chunk_orphan_messages(messages:list[dict[str, Any]])->list[list[dict[str, An
     return chunks
 
 
-def format_chunks(chunks: list[dict[str, Any]]) ->list[str]:
+def format_chunks(chunks: list[list[dict[str, Any]]]) ->list[str]:
     formatted_chunks = []
 
     for chunk in chunks:
         message_chunk = []
         for message in chunk:
-            message_chunk.append(f"[{message['author']}]: { message['content']}")
+            message_chunk.append(f"[{message['author']}]: {message['content']}")
         formatted_chunks.append("\n".join(message_chunk))
         
     return formatted_chunks

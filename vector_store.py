@@ -3,6 +3,7 @@ from typing import Any
 from pgvector.psycopg import register_vector
 
 def add_chunks(formatted_chunks: list[str], chunk_embeddings: Any, message_ids: list[list[str]]) -> None:
+    print(f"inserting {len(formatted_chunks)} chunks into db")
     con =  buffer.get_conn()
     cur = con.cursor()
     register_vector(con)
