@@ -4,7 +4,8 @@ from sentence_transformers import SentenceTransformer
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-def vector_search(query_string: str) -> list[tuple[str, list[str]]]:
+def vsearch(query_string: str) -> list[tuple[str, list[str]]]:
+    print(f"searching for: {query_string}")
     con = buffer.get_conn()
     register_vector(con)
 
