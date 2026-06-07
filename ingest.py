@@ -1,10 +1,10 @@
 import asyncio
-import buffer
+import buffer, chunker
 import discord
+from typing import Any
 
 
-
-async def scrape_history(channel, after=None):
+async def scrape_history(channel:discord.TextChannel, after:discord.Object | None =None) -> None:
     async for thread in channel.archived_threads(limit=None): #threaded messages do not appear in channel history and must be iterated independently.
         async for message in thread.history(limit=None, oldest_first=True, after=after):
             if message.author.bot:
@@ -24,18 +24,15 @@ async def scrape_history(channel, after=None):
     await asyncio.sleep(1)
 
 
-async def run_ingest(guild):
-    last_id = buffer.get_last_message_id()
+async def run_ingest(channel:discord.TextChannel) -> None:
+    last_id = buffer.get_last_message_id(channel.name)
     after = discord.Object(id=last_id) if last_id else None
 
-    for channel in guild.text_channels:
-        if channel.name in IGNORE_CHANNELS:
-            continue
-        await scrape_history(channel, after=after)
+    await scrape_history(channel, after=after)
 
-    messages = buffer.get_unprocessed()
-    chunks = semantic_chunk(messages)
-    add_chunks(chunks)
-    buffer.mark_processed([msg["message_id"] for msg in messages])
+    message_ids = chunker.semantic_chunk()
+    buffer.mark_processed(message_ids)
+    
+
 
 

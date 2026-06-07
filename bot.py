@@ -25,7 +25,7 @@ async def on_ready():
     for channel in guild.text_channels:
         if channel.name in IGNORE_CHANNELS:
             continue
-        await ingest.scrape_history(channel)
+        await ingest.run_ingest(channel)
 
 
 client.run(token)
