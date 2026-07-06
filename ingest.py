@@ -10,18 +10,18 @@ async def scrape_history(channel:discord.TextChannel, after:discord.Object | Non
     print(f"scraping archived threads in #{channel.name}")
     async for thread in channel.archived_threads(limit=None): #threaded messages do not appear in channel history and must be iterated independently.
         async for message in thread.history(limit=None, oldest_first=True, after=after):
-            if message.author.bot:
+            if message.author.bot or message.type == discord.MessageType.chat_input_command:
                 continue
             buffer.store_message(message, thread_id=str(thread.id), thread_name=thread.name)
     print(f"scraping active threads in #{channel.name}")
     for thread in channel.threads:
         async for message in thread.history(limit=None, oldest_first=True, after=after):
-            if message.author.bot:
+            if message.author.bot or message.type == discord.MessageType.chat_input_command:
                 continue
             buffer.store_message(message, thread_id=str(thread.id), thread_name=thread.name)
     print(f"scraping channel history in #{channel.name}")
     async for message in channel.history(limit=None, oldest_first=True, after=after):
-        if message.author.bot:
+        if message.author.bot or message.type == discord.MessageType.chat_input_command:
             continue
         buffer.store_message(message)
     await asyncio.sleep(1)
@@ -39,3 +39,13 @@ async def run_ingest(channel:discord.TextChannel) -> None:
     print(f"marking {len(message_ids)} messages as processed")
     buffer.mark_processed(message_ids)
     print("ingest complete")
+
+
+def _process_pending() -> None:
+    message_ids = chunker.semantic_chunk()
+    buffer.mark_processed(message_ids)
+
+
+async def process_pending() -> None:
+    print("processing pending messages")
+    await asyncio.to_thread(_process_pending)

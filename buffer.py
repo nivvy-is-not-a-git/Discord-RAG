@@ -88,6 +88,7 @@ def get_unprocessed_thread_messages() -> list[dict[str, Any]]:
     rows = con.cursor(row_factory=dict_row).execute("""
         SELECT * FROM messages
         WHERE is_processed = 0 AND thread_id IS NOT NULL
+        AND content NOT LIKE '/%'
         ORDER BY thread_id, timestamp ASC
     """).fetchall()
     con.close()
@@ -99,6 +100,7 @@ def get_unprocessed_reply_messages() -> list[dict[str, Any]]:
     rows = con.cursor(row_factory=dict_row).execute("""
         SELECT * FROM messages
         WHERE is_processed = 0 AND reply_to IS NOT NULL
+        AND content NOT LIKE '/%'
         ORDER BY reply_to
     """).fetchall()
     con.close()
@@ -110,7 +112,41 @@ def get_unprocessed_orphans() -> list[dict[str, Any]]:
     rows = con.cursor(row_factory=dict_row).execute("""
         SELECT * FROM messages
         WHERE is_processed = 0 AND reply_to IS NULL AND thread_id IS NULL
-        ORDER BY timestamp DESC
+        AND content NOT LIKE '/%'
+        ORDER BY timestamp ASC
     """).fetchall()
     con.close()
     return rows
+
+
+def get_last_processed_thread_message(thread_id: str) -> dict[str, Any] | None:
+    con = get_conn()
+    row = con.cursor(row_factory=dict_row).execute("""
+        SELECT * FROM messages
+        WHERE thread_id = %s AND is_processed = 1
+        ORDER BY timestamp DESC
+        LIMIT 1
+    """, (thread_id,)).fetchone()
+    con.close()
+    return row
+
+
+def get_last_processed_orphan_message() -> dict[str, Any] | None:
+    con = get_conn()
+    row = con.cursor(row_factory=dict_row).execute("""
+        SELECT * FROM messages
+        WHERE is_processed = 1 AND reply_to IS NULL AND thread_id IS NULL
+        ORDER BY timestamp DESC
+        LIMIT 1
+    """).fetchone()
+    con.close()
+    return row
+
+
+def get_discord_link(message_id: str) -> str | None:
+    con = get_conn()
+    row = con.cursor(row_factory=dict_row).execute("""
+        SELECT discord_link FROM messages WHERE message_id = %s
+    """, (message_id,)).fetchone()
+    con.close()
+    return row["discord_link"] if row else None
