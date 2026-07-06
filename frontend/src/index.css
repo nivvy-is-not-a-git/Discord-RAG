@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-discord-bg: #313338;
+  --color-discord-sidebar: #2b2d31;
+  --color-discord-darkest: #1e1f22;
+  --color-discord-blurple: #5865f2;
+  --color-discord-blurple-hover: #4752c4;
+  --color-discord-text: #dbdee1;
+  --color-discord-muted: #949ba4;
+  --color-discord-green: #23a55a;
+  --color-discord-red: #da373c;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+}
