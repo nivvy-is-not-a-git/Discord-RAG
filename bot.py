@@ -36,7 +36,7 @@ async def on_ready():
     print(f"channels: {[c.name for c in text_channels]}")
 
     for channel in text_channels:
-        if channel.name != 'remy-music':
+        if channel.name != 'general':
             continue
         print(f"ingesting {channel.name}")
         await ingest.run_ingest(channel)
